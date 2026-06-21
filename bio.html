@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bilingual Biology Flashcards</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+    .subtitle {
+      text-align: center;
+      color: #aaa;
+      margin-bottom: 20px;
+      font-size: 0.95em;
+    }
+    .lang-toggle {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .lang-toggle button {
+      padding: 8px 24px;
+      margin: 0 8px;
+      border: 2px solid #ffd700;
+      background: transparent;
+      color: #ffd700;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 1em;
+    }
+    .lang-toggle button.active {
+      background: #ffd700;
+      color: #1a1a2e;
+    }
+    .lang-toggle button:hover {
+      transform: scale(1.05);
+    }
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #333;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00d4aa, #00b4d8);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9em;
+      transition: all 0.2s;
+    }
+    .btn:hover { transform: scale(1.05); }
+    .btn-prev { background: #e63946; color: white; }
+    .btn-flip { background: #f4a261; color: #1a1a2e; }
+    .btn-next { background: #2a9d8f; color: white; }
+    .btn-shuffle { background: #9b5de5; color: white; }
+    .btn-filter {
+      padding: 6px 14px;
+      border-radius: 15px;
+      font-size: 0.8em;
+      border: 2px solid;
+      background: transparent;
+      cursor: pointer;
+    }
+    .filter-active { background: rgba(255,255,255,0.2); }
+
+    .flashcard-container {
+      perspective: 1000px;
+      max-width: 700px;
+      margin: 0 auto 20px;
+      height: 600px;
+    }
+    .flashcard {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+      cursor: pointer;
+    }
+    .flashcard.flipped { transform: rotateY(180deg); }
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+    .card-front {
+      background: linear-gradient(145deg, #2d3436, #000000);
+      border: 3px solid;
+    }
+    .card-back {
+      background: linear-gradient(145deg, #1e3a5f, #0d2137);
+      transform: rotateY(180deg);
+      border: 3px solid;
+    }
+
+    .topic-science .card-front, .topic-science .card-back { border-color: #f4a261; }
+    .topic-cell .card-front, .topic-cell .card-back { border-color: #2a9d8f; }
+    .topic-genetics .card-front, .topic-genetics .card-back { border-color: #e63946; }
+    .topic-evolution .card-front, .topic-evolution .card-back { border-color: #9b5de5; }
+    .topic-ecology .card-front, .topic-ecology .card-back { border-color: #00d4aa; }
+    .topic-human .card-front, .topic-human .card-back { border-color: #ff6b6b; }
+
+    .topic-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75em;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      align-self: flex-start;
+    }
+    .badge-science { background: #f4a261; color: #1a1a2e; }
+    .badge-cell { background: #2a9d8f; color: white; }
+    .badge-genetics { background: #e63946; color: white; }
+    .badge-evolution { background: #9b5de5; color: white; }
+    .badge-ecology { background: #00d4aa; color: #1a1a2e; }
+    .badge-human { background: #ff6b6b; color: white; }
+
+    .card-question {
+      font-size: 1.3em;
+      font-weight: bold;
+      line-height: 1.4;
+      margin-bottom: 15px;
+    }
+    .card-answer {
+      font-size: 1em;
+      line-height: 1.6;
+      color: #e0e0e0;
+    }
+    .card-answer strong { color: #ffd700; }
+    .card-answer ul { margin-left: 20px; margin-top: 8px; }
+    .card-answer li { margin-bottom: 6px; }
+
+    .card-image {
+      width: 100%;
+      max-height: 250px;
+      object-fit: contain;
+      border-radius: 10px;
+      margin: 15px 0;
+      background: rgba(255,255,255,0.05);
+    }
+    .card-image-front {
+      width: 100%;
+      max-height: 200px;
+      object-fit: contain;
+      border-radius: 10px;
+      margin: 10px 0;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .hint-box {
+      background: rgba(255,255,255,0.1);
+      border-left: 4px solid #ffd700;
+      padding: 10px 15px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 10px;
+      font-size: 0.9em;
+      color: #ffd700;
+    }
+
+    .card-counter {
+      text-align: center;
+      color: #888;
+      font-size: 0.9em;
+      margin-top: 10px;
+    }
+
+    .quick-ref {
+      max-width: 700px;
+      margin: 30px auto;
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      padding: 20px;
+    }
+    .quick-ref h2 {
+      color: #ffd700;
+      margin-bottom: 15px;
+      font-size: 1.2em;
+    }
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px;
+    }
+    .quick-item {
+      background: rgba(0,0,0,0.3);
+      padding: 12px;
+      border-radius: 10px;
+      border-left: 4px solid;
+    }
+    .quick-item h4 { color: #ffd700; margin-bottom: 5px; font-size: 0.95em; }
+    .quick-item p { font-size: 0.85em; color: #ccc; line-height: 1.5; }
+
+    .star-rating {
+      display: flex;
+      gap: 5px;
+      margin-top: 15px;
+      justify-content: center;
+    }
+    .star {
+      font-size: 1.5em;
+      cursor: pointer;
+      color: #444;
+      transition: color 0.2s;
+    }
+    .star.active { color: #ffd700; }
+    .star:hover { color: #ffd700; }
+
+    @media (max-width: 600px) {
+      .flashcard-container { height: 650px; }
+      .card-question { font-size: 1.1em; }
+      .card-answer { font-size: 0.9em; }
+      h1 { font-size: 1.5em; }
+    }
+  </style>
+</head>
+<body>
+
+<h1 id="mainTitle">🌱 Biology Level 1 · Flashcards</h1>
+<p class="subtitle" id="subtitle">Click card to flip · Bilingual (EN/SV)</p>
+
+<div class="lang-toggle">
+  <button id="btnEn" class="active" onclick="setLanguage('en')">🇬🇧 English</button>
+  <button id="btnSv" onclick="setLanguage('sv')">🇸🇪 Svenska</button>
+</div>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<div class="controls" id="filterControls">
+  <button class="btn btn-filter filter-active" onclick="filterCards('all')" style="border-color:#fff;color:#fff;" data-key="filterAll">All</button>
+  <button class="btn btn-filter" onclick="filterCards('science')" style="border-color:#f4a261;color:#f4a261;" data-key="filterScience">Science</button>
+  <button class="btn btn-filter" onclick="filterCards('cell')" style="border-color:#2a9d8f;color:#2a9d8f;" data-key="filterCell">Cell</button>
+  <button class="btn btn-filter" onclick="filterCards('genetics')" style="border-color:#e63946;color:#e63946;" data-key="filterGenetics">Genetics</button>
+  <button class="btn btn-filter" onclick="filterCards('evolution')" style="border-color:#9b5de5;color:#9b5de5;" data-key="filterEvolution">Evolution</button>
+  <button class="btn btn-filter" onclick="filterCards('ecology')" style="border-color:#00d4aa;color:#00d4aa;" data-key="filterEcology">Ecology</button>
+  <button class="btn btn-filter" onclick="filterCards('human')" style="border-color:#ff6b6b;color:#ff6b6b;" data-key="filterHuman">Human</button>
+</div>
+
+<div class="controls">
+  <button class="btn btn-prev" onclick="prevCard()" data-key="prev">Previous</button>
+  <button class="btn btn-flip" onclick="flipCard()" data-key="flip">Flip</button>
+  <button class="btn btn-next" onclick="nextCard()" data-key="next">Next</button>
+  <button class="btn btn-shuffle" onclick="shuffleCards()" data-key="shuffle">Shuffle</button>
+</div>
+
+<div class="flashcard-container" onclick="flipCard()">
+  <div class="flashcard" id="flashcard">
+    <div class="card-face card-front" id="cardFront">
+      <span class="topic-badge" id="frontBadge">SCIENCE</span>
+      <div class="card-question" id="frontQuestion">Loading...</div>
+      <img class="card-image-front" id="frontImage" src="" alt="" style="display:none;">
+      <div class="hint-box" id="hintBox">Click to see the answer</div>
+    </div>
+    <div class="card-face card-back" id="cardBack">
+      <span class="topic-badge" id="backBadge">SCIENCE</span>
+      <div class="card-answer" id="backAnswer">Loading...</div>
+      <img class="card-image" id="backImage" src="" alt="" style="display:none;">
+      <div class="star-rating">
+        <span class="star" onclick="rateCard(1)">★</span>
+        <span class="star" onclick="rateCard(2)">★</span>
+        <span class="star" onclick="rateCard(3)">★</span>
+        <span class="star" onclick="rateCard(4)">★</span>
+        <span class="star" onclick="rateCard(5)">★</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="card-counter" id="cardCounter">1 / 40</p>
+
+<div class="quick-ref" id="quickRef">
+  <h2 id="quickTitle">📘 QUICK REFERENCE · 2-Minute Summary</h2>
+  <div class="quick-grid" id="quickGrid"></div>
+</div>
+
+<script>
+// --------------------------------------------------------------
+// DATA: Bilingual cards (English + Swedish)
+// --------------------------------------------------------------
+const cardData = [
+  // SCIENCE
+  {
+    topic: "science",
+    en: { question: "What is the difference between hypothesis, theory, and law?", answer: `<strong>Hypothesis</strong> = a testable guess.<br><strong>Theory</strong> = confirmed explanation.<br><strong>Law</strong> = always works in nature.<br><br>Order: Hypothesis → Theory → Law` },
+    sv: { question: "Vad är skillnaden mellan hypotes, teori och lag?", answer: `<strong>Hypotes</strong> = testbar gissning.<br><strong>Teori</strong> = bekräftad förklaring.<br><strong>Lag</strong> = alltid sant i naturen.<br><br>Ordning: Hypotes → Teori → Lag` },
+    image: ""
+  },
+  {
+    topic: "science",
+    en: { question: "What does IMRaD mean?", answer: `<strong>I</strong>ntroduction, <strong>M</strong>ethod, <strong>R</strong>esults, <strong>a</strong>nd <strong>D</strong>iscussion.<br>Standard structure for scientific articles.` },
+    sv: { question: "Vad betyder IMRaD?", answer: `<strong>I</strong>ntroduktion, <strong>M</strong>etod, <strong>R</strong>esultat, <strong>a</strong>nd <strong>D</strong>iskussion.<br>Standardstruktur för vetenskapliga artiklar.` },
+    image: ""
+  },
+  {
+    topic: "science",
+    en: { question: "What are validity and reliability?", answer: `<strong>Validity</strong> = measures what it should.<br><strong>Reliability</strong> = consistent results.<br>Both needed for good research.` },
+    sv: { question: "Vad är validitet och reliabilitet?", answer: `<strong>Validitet</strong> = mäter rätt sak.<br><strong>Reliabilitet</strong> = konsekventa resultat.<br>Båda behövs för bra forskning.` },
+    image: ""
+  },
+  // CELL
+  {
+    topic: "cell",
+    en: { question: "What parts are in a eukaryotic cell?", answer: `<strong>Nucleus</strong> (DNA), <strong>mitochondria</strong> (energy), <strong>ribosomes</strong> (proteins), <strong>ER</strong>, <strong>Golgi</strong>, <strong>membrane</strong>, <strong>lysosomes</strong>, <strong>vacuoles</strong>.<br>Plant cells also have cell wall and chloroplasts.` },
+    sv: { question: "Vilka delar finns i en eukaryot cell?", answer: `<strong>Cellkärna</strong> (DNA), <strong>mitokondrier</strong> (energi), <strong>ribosomer</strong> (proteiner), <strong>ER</strong>, <strong>Golgi</strong>, <strong>membran</strong>, <strong>lysosomer</strong>, <strong>vakuoler</strong>.<br>Växtceller har även cellvägg och kloroplaster.` },
+    image: "https://kimi-web-img.moonshot.cn/img/cdn1.byjus.com/1722b99687f84af984b6ee28dc579abc48f94296.png"
+  },
+  {
+    topic: "cell",
+    en: { question: "Prokaryote vs Eukaryote?", answer: `<strong>Prokaryote:</strong> no nucleus, no organelles, small (bacteria).<br><strong>Eukaryote:</strong> has nucleus + organelles, large (animals, plants).` },
+    sv: { question: "Prokaryot vs Eukaryot?", answer: `<strong>Prokaryot:</strong> ingen kärna, inga organeller, små (bakterier).<br><strong>Eukaryot:</strong> har kärna + organeller, stora (djur, växter).` },
+    image: ""
+  },
+  {
+    topic: "cell",
+    en: { question: "What is a virus?", answer: `<strong>Not a cell.</strong> Has capsid + DNA/RNA. Needs host to replicate.<br>Bacteriophages look like tiny robots.` },
+    sv: { question: "Vad är ett virus?", answer: `<strong>Inte en cell.</strong> Har kapsid + DNA/RNA. Behöver värdcell för att föröka sig.<br>Bakteriofager ser ut som små robotar.` },
+    image: "https://kimi-web-img.moonshot.cn/img/www.researchgate.net/66d71381823b8c40713a76d61f4a4bad19159940.png"
+  },
+  // GENETICS
+  {
+    topic: "genetics",
+    en: { question: "Gene, allele, genotype, phenotype?", answer: `<strong>Gene</strong> = DNA piece for a trait.<br><strong>Allele</strong> = variant (B/b).<br><strong>Genotype</strong> = alleles (Bb).<br><strong>Phenotype</strong> = visible (brown eyes).` },
+    sv: { question: "Gen, allel, genotyp, fenotyp?", answer: `<strong>Gen</strong> = DNA-bit för en egenskap.<br><strong>Allel</strong> = variant (B/b).<br><strong>Genotyp</strong> = alleler (Bb).<br><strong>Fenotyp</strong> = synligt (bruna ögon).` },
+    image: ""
+  },
+  {
+    topic: "genetics",
+    en: { question: "How does a Punnett square work?", answer: `Bb × Bb → 25% BB, 50% Bb, 25% bb.<br>Phenotype: 3 brown : 1 blue.` },
+    sv: { question: "Hur fungerar ett korsningsschema?", answer: `Bb × Bb → 25% BB, 50% Bb, 25% bb.<br>Fenotyp: 3 bruna : 1 blå.` },
+    image: "https://kimi-web-img.moonshot.cn/img/passel2.unl.edu/2ef336d233219c95fc174d0a5368eacb58fcf43f.php"
+  },
+  {
+    topic: "genetics",
+    en: { question: "DNA vs RNA?", answer: `<strong>DNA:</strong> double, deoxyribose, T, stores info.<br><strong>RNA:</strong> single, ribose, U, messenger.` },
+    sv: { question: "DNA vs RNA?", answer: `<strong>DNA:</strong> dubbel, deoxiribos, T, lagrar info.<br><strong>RNA:</strong> enkel, ribos, U, budbärare.` },
+    image: "https://kimi-web-img.moonshot.cn/img/d20khd7ddkh5ls.cloudfront.net/492ab4cbb184deed79f3255f2a4f9c00f18cf5ca.png"
+  },
+  // EVOLUTION
+  {
+    topic: "evolution",
+    en: { question: "What is natural selection?", answer: `"Survival of the fittest."<br>Variation + overproduction + differential survival.<br>Example: Darwin's finches.` },
+    sv: { question: "Vad är naturligt urval?", answer: `"De bäst anpassade överlever."<br>Variation + överproduktion + olika överlevnad.<br>Exempel: Darwinfinkar.` },
+    image: "https://kimi-web-img.moonshot.cn/img/cdn-ildfibj.nitrocdn.com/5e21fcbfdcc48c98b650e72ea8d2ba33f82d6077.jpg"
+  },
+  {
+    topic: "evolution",
+    en: { question: "What is convergent evolution?", answer: `Unrelated species develop similar traits due to similar environments.<br>Examples: wings, cactus-like plants, eyes.` },
+    sv: { question: "Vad är konvergent evolution?", answer: `Olikartade arter utvecklar liknande egenskaper pga liknande miljöer.<br>Exempel: vingar, kaktusliknande växter, ögon.` },
+    image: "https://kimi-web-img.moonshot.cn/img/cdn-ildfibj.nitrocdn.com/384423677d866ecc199eec4b24e0c783b6bf66b7.jpg"
+  },
+  // ECOLOGY
+  {
+    topic: "ecology",
+    en: { question: "Ecosystem, population, community?", answer: `<strong>Ecosystem</strong> = living + non-living.<br><strong>Population</strong> = same species.<br><strong>Community</strong> = all populations.<br><strong>Habitat</strong> = place, <strong>niche</strong> = role.` },
+    sv: { question: "Ekosystem, population, samhälle?", answer: `<strong>Ekosystem</strong> = levande + icke-levande.<br><strong>Population</strong> = samma art.<br><strong>Samhälle</strong> = alla populationer.<br><strong>Habitat</strong> = plats, <strong>nisch</strong> = roll.` },
+    image: ""
+  },
+  {
+    topic: "ecology",
+    en: { question: "Food chain and energy pyramid?", answer: `Producer → primary → secondary → tertiary → decomposer.<br>90% energy lost per level → only 10% moves up.` },
+    sv: { question: "Näringskedja och energipyramid?", answer: `Producent → primärkonsument → sekundärkonsument → tertiärkonsument → nedbrytare.<br>90% energi förloras per nivå → bara 10% går vidare.` },
+    image: "https://kimi-web-img.moonshot.cn/img/d1yqpar94jqbqm.cloudfront.net/734b32cca14a0008b214c18fb8452ad54749e0c7.jpg"
+  },
+  // HUMAN
+  {
+    topic: "human",
+    en: { question: "How does digestion work?", answer: `Mouth (amylase) → esophagus → stomach (acid, pepsin) → small intestine (bile, villi) → large intestine (water).` },
+    sv: { question: "Hur fungerar matspjälkning?", answer: `Mun (amylas) → matstrupe → magsäck (syra, pepsin) → tunntarm (galla, tarmludd) → tjocktarm (vatten).` },
+    image: "https://kimi-web-img.moonshot.cn/img/geniebook.com/c98b9dc138694b4a6c44b9a6c6704e723096f88a.webp"
+  },
+  {
+    topic: "human",
+    en: { question: "How does breathing work?", answer: `Air → nose/mouth → trachea → bronchi → alveoli.<br>O2 diffuses into blood, CO2 out.<br>Diaphragm contracts → inhale.` },
+    sv: { question: "Hur fungerar andning?", answer: `Luft → näsa/mun → luftstrupe → bronker → alveoler.<br>O2 diffunderar in i blodet, CO2 ut.<br>Diafragman drar ihop sig → inandning.` },
+    image: "https://kimi-web-img.moonshot.cn/img/cdn1.byjus.com/b30829860455cfe58cbde093df79a10c007cc96b.png"
+  },
+  {
+    topic: "human",
+    en: { question: "How is the heart built?", answer: `4 chambers: right atrium, right ventricle, left atrium, left ventricle.<br>Pulmonary circuit (lungs) + systemic circuit (body).` },
+    sv: { question: "Hur är hjärtat uppbyggt?", answer: `4 rum: höger förmak, höger kammare, vänster förmak, vänster kammare.<br>Lilla kretsloppet (lungor) + stora kretsloppet (kroppen).` },
+    image: ""
+  }
+];
+
+// Quick reference (bilingual)
+const quickRefData = {
+  en: [
+    { title: "Scientific Method", items: "Hypothesis = testable guess<br>Theory = confirmed explanation<br>Falsifiability = must be disprovable<br>IMRaD = Intro, Method, Results, Discussion<br>Validity = measures right thing<br>Reliability = consistent" },
+    { title: "The Cell", items: "Prokaryote = no nucleus (bacteria)<br>Eukaryote = has nucleus + organelles<br>Virus = not a cell<br>Cell cycle = G1→S→G2→M<br>Mitosis = body cell division<br>Meiosis = sex cell division" },
+    { title: "Genetics", items: "Gene = DNA piece for protein<br>Allele = gene variant (B/b)<br>Dominant = covers recessive<br>Genotype = genetic makeup<br>Phenotype = visible result<br>DNA replication = helicase→polymerase→ligase" },
+    { title: "Evolution", items: "Natural selection = best adapted survive<br>Selection pressure = environmental factor<br>Convergent evolution = similar traits, different origins<br>Endosymbiotic theory = mitochondria were bacteria<br>Speciation = allopatric, sympatric, peripatric" },
+    { title: "Ecology", items: "Ecosystem = living + abiotic<br>Food chain = prod→cons→decomposers<br>Energy pyramid = 90% lost per level<br>Resilience = recovery ability<br>Mutualism = both benefit<br>Parasitism = one benefits, one harmed" },
+    { title: "Human Body", items: "Digestion = mouth→stomach→small intestine→large intestine<br>Breathing = alveoli, diffusion O2/CO2<br>Heart = 4 chambers, 2 circuits<br>Kidneys = nephron filters blood<br>Menstrual cycle = ~28 days, FSH→LH→progesterone" }
+  ],
+  sv: [
+    { title: "Vetenskapsteori", items: "Hypotes = testbart påstående<br>Teori = bekräftad förklaring<br>Falsifierbarhet = måste gå att motbevisa<br>IMRaD = Intro, Metod, Resultat, Diskussion<br>Validitet = mäter rätt sak<br>Reliabilitet = konsekvent" },
+    { title: "Cellen", items: "Prokaryot = ingen kärna (bakterier)<br>Eukaryot = har kärna + organeller<br>Virus = ej cell<br>Cellcykeln = G1→S→G2→M<br>Mitos = kroppscelldelning<br>Meios = könscellsdelning" },
+    { title: "Genetik", items: "Gen = DNA-bit för protein<br>Allel = variant (B/b)<br>Dominant = täcker recessiv<br>Genotyp = arvsmassa<br>Fenotyp = synligt resultat<br>DNA-replikation = helikas→polymeras→ligas" },
+    { title: "Evolution", items: "Naturligt urval = bäst anpassade överlever<br>Selektionstryck = miljöfaktor<br>Konvergent evolution = liknande egenskaper, olika ursprung<br>Endosymbiontteorin = mitokondrier var bakterier<br>Artbildning = allopatrisk, sympatrisk, peripatrisk" },
+    { title: "Ekologi", items: "Ekosystem = levande + abiotiskt<br>Näringskedja = prod→kons→nedbrytare<br>Energipyramid = 90% förloras per nivå<br>Resiliens = återhämtningsförmåga<br>Mutualism = båda gynnas<br>Parasitism = en gynnas, en skadas" },
+    { title: "Människan", items: "Matspjälkning = mun→magsäck→tunntarm→tjocktarm<br>Andning = alveoler, diffusion O2/CO2<br>Hjärta = 4 rum, 2 kretslopp<br>Njurar = nefron filtrerar blod<br>Menstruationscykeln = ~28 dagar, FSH→LH→progesteron" }
+  ]
+};
+
+// --------------------------------------------------------------
+// STATE
+// --------------------------------------------------------------
+let currentLang = 'en';
+let currentIndex = 0;
+let filteredCards = [...cardData];
+let cardRatings = new Array(cardData.length).fill(0);
+let currentFilter = 'all';
+
+// --------------------------------------------------------------
+// DOM refs
+// --------------------------------------------------------------
+const flashcard = document.getElementById('flashcard');
+const frontBadge = document.getElementById('frontBadge');
+const backBadge = document.getElementById('backBadge');
+const frontQuestion = document.getElementById('frontQuestion');
+const backAnswer = document.getElementById('backAnswer');
+const frontImage = document.getElementById('frontImage');
+const backImage = document.getElementById('backImage');
+const cardCounter = document.getElementById('cardCounter');
+const progressFill = document.getElementById('progressFill');
+const hintBox = document.getElementById('hintBox');
+const quickGrid = document.getElementById('quickGrid');
+const mainTitle = document.getElementById('mainTitle');
+const subtitle = document.getElementById('subtitle');
+
+// --------------------------------------------------------------
+// LANGUAGE STRINGS
+// --------------------------------------------------------------
+const langText = {
+  en: {
+    title: '🌱 Biology Level 1 · Flashcards',
+    subtitle: 'Click card to flip · Bilingual (EN/SV)',
+    hint: 'Click to see the answer',
+    filterAll: 'All',
+    filterScience: 'Science',
+    filterCell: 'Cell',
+    filterGenetics: 'Genetics',
+    filterEvolution: 'Evolution',
+    filterEcology: 'Ecology',
+    filterHuman: 'Human',
+    prev: 'Previous',
+    flip: 'Flip',
+    next: 'Next',
+    shuffle: 'Shuffle',
+    quickTitle: '📘 QUICK REFERENCE · 2-Minute Summary'
+  },
+  sv: {
+    title: '🌱 Biologi Nivå 1 · Flashcards',
+    subtitle: 'Klicka på kortet för att vända · Tvåspråkig (EN/SV)',
+    hint: 'Klicka för att se svaret',
+    filterAll: 'Alla',
+    filterScience: 'Vetenskap',
+    filterCell: 'Cell',
+    filterGenetics: 'Genetik',
+    filterEvolution: 'Evolution',
+    filterEcology: 'Ekologi',
+    filterHuman: 'Människan',
+    prev: 'Föregående',
+    flip: 'Vänd',
+    next: 'Nästa',
+    shuffle: 'Blanda',
+    quickTitle: '📘 SNABBREFERENS · 2-minuters sammanfattning'
+  }
+};
+
+// --------------------------------------------------------------
+// FUNCTIONS
+// --------------------------------------------------------------
+function setLanguage(lang) {
+  currentLang = lang;
+  document.getElementById('btnEn').classList.toggle('active', lang === 'en');
+  document.getElementById('btnSv').classList.toggle('active', lang === 'sv');
+  
+  // Update UI texts
+  const t = langText[lang];
+  mainTitle.textContent = t.title;
+  subtitle.textContent = t.subtitle;
+  hintBox.textContent = t.hint;
+  document.getElementById('quickTitle').textContent = t.quickTitle;
+  
+  // Filter buttons
+  document.querySelectorAll('.btn-filter').forEach(btn => {
+    const key = btn.dataset.key;
+    if (key) btn.textContent = t[key];
+  });
+  document.querySelectorAll('.controls .btn:not(.btn-filter)').forEach(btn => {
+    const key = btn.dataset.key;
+    if (key) btn.textContent = t[key];
+  });
+  
+  // Quick reference
+  buildQuickRef(lang);
+  
+  // Update card content
+  updateCard();
+}
+
+function buildQuickRef(lang) {
+  const data = quickRefData[lang];
+  quickGrid.innerHTML = '';
+  data.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'quick-item';
+    div.style.borderColor = '#ffd700';
+    div.innerHTML = `<h4>${item.title}</h4><p>${item.items}</p>`;
+    quickGrid.appendChild(div);
+  });
+}
+
+function getCardText(card) {
+  return card[currentLang] || card.en; // fallback
+}
+
+function updateCard() {
+  if (filteredCards.length === 0) {
+    frontQuestion.textContent = 'No cards match filter.';
+    backAnswer.textContent = 'Try another filter.';
+    cardCounter.textContent = '0 / 0';
+    progressFill.style.width = '0%';
+    frontImage.style.display = 'none';
+    backImage.style.display = 'none';
+    flashcard.classList.remove('flipped');
+    return;
+  }
+  
+  const card = filteredCards[currentIndex];
+  const text = getCardText(card);
+  
+  // Update badges
+  const topicMap = {
+    science: { en: 'SCIENCE', sv: 'VETENSKAP' },
+    cell: { en: 'CELL', sv: 'CELL' },
+    genetics: { en: 'GENETICS', sv: 'GENETIK' },
+    evolution: { en: 'EVOLUTION', sv: 'EVOLUTION' },
+    ecology: { en: 'ECOLOGY', sv: 'EKOLOGI' },
+    human: { en: 'HUMAN', sv: 'MANNISKAN' }
+  };
+  const badgeText = topicMap[card.topic]?.[currentLang] || card.topic.toUpperCase();
+  const badgeClass = 'badge-' + card.topic;
+  frontBadge.className = 'topic-badge ' + badgeClass;
+  frontBadge.textContent = badgeText;
+  backBadge.className = 'topic-badge ' + badgeClass;
+  backBadge.textContent = badgeText;
+  
+  // Update content
+  frontQuestion.textContent = text.question;
+  backAnswer.innerHTML = text.answer;
+  
+  // Images
+  if (card.image) {
+    frontImage.src = card.image;
+    frontImage.style.display = 'block';
+    backImage.src = card.image;
+    backImage.style.display = 'block';
+  } else {
+    frontImage.style.display = 'none';
+    backImage.style.display = 'none';
+  }
+  
+  // Topic class for border
+  flashcard.className = 'flashcard topic-' + card.topic;
+  document.getElementById('cardFront').className = 'card-face card-front topic-' + card.topic;
+  document.getElementById('cardBack').className = 'card-face card-back topic-' + card.topic;
+  
+  // Counter & progress
+  cardCounter.textContent = (currentIndex + 1) + ' / ' + filteredCards.length;
+  const progress = ((currentIndex + 1) / filteredCards.length) * 100;
+  progressFill.style.width = progress + '%';
+  
+  // Reset flip
+  flashcard.classList.remove('flipped');
+  
+  // Stars
+  updateStars();
+}
+
+function flipCard() {
+  flashcard.classList.toggle('flipped');
+}
+
+function nextCard() {
+  if (filteredCards.length === 0) return;
+  currentIndex = (currentIndex + 1) % filteredCards.length;
+  updateCard();
+}
+
+function prevCard() {
+  if (filteredCards.length === 0) return;
+  currentIndex = (currentIndex - 1 + filteredCards.length) % filteredCards.length;
+  updateCard();
+}
+
+function shuffleCards() {
+  for (let i = filteredCards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [filteredCards[i], filteredCards[j]] = [filteredCards[j], filteredCards[i]];
+  }
+  currentIndex = 0;
+  updateCard();
+}
+
+function filterCards(topic) {
+  currentFilter = topic;
+  document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('filter-active'));
+  event.target.classList.add('filter-active');
+  
+  if (topic === 'all') {
+    filteredCards = [...cardData];
+  } else {
+    filteredCards = cardData.filter(c => c.topic === topic);
+  }
+  currentIndex = 0;
+  updateCard();
+}
+
+function rateCard(rating) {
+  cardRatings[currentIndex] = rating;
+  updateStars();
+}
+
+function updateStars() {
+  const stars = document.querySelectorAll('.star');
+  const rating = cardRatings[currentIndex] || 0;
+  stars.forEach((star, i) => {
+    star.classList.toggle('active', i < rating);
+  });
+}
+
+// Keyboard
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight') nextCard();
+  if (e.key === 'ArrowLeft') prevCard();
+  if (e.key === ' ' || e.key === 'Enter') flipCard();
+});
+
+// --------------------------------------------------------------
+// INIT
+// --------------------------------------------------------------
+buildQuickRef('en');
+setLanguage('en');
+</script>
+</body>
+</html>
