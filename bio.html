@@ -266,13 +266,13 @@
 <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
 
 <div class="controls" id="filterControls">
-  <button class="btn btn-filter filter-active" onclick="filterCards('all')" style="border-color:#fff;color:#fff;" data-key="filterAll">All</button>
-  <button class="btn btn-filter" onclick="filterCards('science')" style="border-color:#f4a261;color:#f4a261;" data-key="filterScience">Science</button>
-  <button class="btn btn-filter" onclick="filterCards('cell')" style="border-color:#2a9d8f;color:#2a9d8f;" data-key="filterCell">Cell</button>
-  <button class="btn btn-filter" onclick="filterCards('genetics')" style="border-color:#e63946;color:#e63946;" data-key="filterGenetics">Genetics</button>
-  <button class="btn btn-filter" onclick="filterCards('evolution')" style="border-color:#9b5de5;color:#9b5de5;" data-key="filterEvolution">Evolution</button>
-  <button class="btn btn-filter" onclick="filterCards('ecology')" style="border-color:#00d4aa;color:#00d4aa;" data-key="filterEcology">Ecology</button>
-  <button class="btn btn-filter" onclick="filterCards('human')" style="border-color:#ff6b6b;color:#ff6b6b;" data-key="filterHuman">Human</button>
+  <button class="btn btn-filter filter-active" onclick="filterCards('all', this)" style="border-color:#fff;color:#fff;" data-key="filterAll">All</button>
+  <button class="btn btn-filter" onclick="filterCards('science', this)" style="border-color:#f4a261;color:#f4a261;" data-key="filterScience">Science</button>
+  <button class="btn btn-filter" onclick="filterCards('cell', this)" style="border-color:#2a9d8f;color:#2a9d8f;" data-key="filterCell">Cell</button>
+  <button class="btn btn-filter" onclick="filterCards('genetics', this)" style="border-color:#e63946;color:#e63946;" data-key="filterGenetics">Genetics</button>
+  <button class="btn btn-filter" onclick="filterCards('evolution', this)" style="border-color:#9b5de5;color:#9b5de5;" data-key="filterEvolution">Evolution</button>
+  <button class="btn btn-filter" onclick="filterCards('ecology', this)" style="border-color:#00d4aa;color:#00d4aa;" data-key="filterEcology">Ecology</button>
+  <button class="btn btn-filter" onclick="filterCards('human', this)" style="border-color:#ff6b6b;color:#ff6b6b;" data-key="filterHuman">Human</button>
 </div>
 
 <div class="controls">
@@ -314,7 +314,7 @@
 
 <script>
 // --------------------------------------------------------------
-// DATA: Bilingual cards (English + Swedish)
+// DATA: Bilingual cards (English + Swedish) - NO external images!
 // --------------------------------------------------------------
 const cardData = [
   // SCIENCE
@@ -336,12 +336,24 @@ const cardData = [
     sv: { question: "Vad är validitet och reliabilitet?", answer: `<strong>Validitet</strong> = mäter rätt sak.<br><strong>Reliabilitet</strong> = konsekventa resultat.<br>Båda behövs för bra forskning.` },
     image: ""
   },
+  {
+    topic: "science",
+    en: { question: "Induction vs Deduction?", answer: `<strong>Induction</strong> = specific → general (guess).<br><strong>Deduction</strong> = general → specific (logical).` },
+    sv: { question: "Induktion vs Deduktion?", answer: `<strong>Induktion</strong> = specifikt → allmänt (gissning).<br><strong>Deduktion</strong> = allmänt → specifikt (logiskt).` },
+    image: ""
+  },
+  {
+    topic: "science",
+    en: { question: "What is a pilot study?", answer: `A small test-study before the main study.<br>Tests method, finds problems, saves time and money.` },
+    sv: { question: "Vad är en pilotstudie?", answer: `En liten test-undersökning före huvudstudien.<br>Testar metod, hittar problem, sparar tid och pengar.` },
+    image: ""
+  },
   // CELL
   {
     topic: "cell",
     en: { question: "What parts are in a eukaryotic cell?", answer: `<strong>Nucleus</strong> (DNA), <strong>mitochondria</strong> (energy), <strong>ribosomes</strong> (proteins), <strong>ER</strong>, <strong>Golgi</strong>, <strong>membrane</strong>, <strong>lysosomes</strong>, <strong>vacuoles</strong>.<br>Plant cells also have cell wall and chloroplasts.` },
     sv: { question: "Vilka delar finns i en eukaryot cell?", answer: `<strong>Cellkärna</strong> (DNA), <strong>mitokondrier</strong> (energi), <strong>ribosomer</strong> (proteiner), <strong>ER</strong>, <strong>Golgi</strong>, <strong>membran</strong>, <strong>lysosomer</strong>, <strong>vakuoler</strong>.<br>Växtceller har även cellvägg och kloroplaster.` },
-    image: "https://kimi-web-img.moonshot.cn/img/cdn1.byjus.com/1722b99687f84af984b6ee28dc579abc48f94296.png"
+    image: ""
   },
   {
     topic: "cell",
@@ -353,7 +365,31 @@ const cardData = [
     topic: "cell",
     en: { question: "What is a virus?", answer: `<strong>Not a cell.</strong> Has capsid + DNA/RNA. Needs host to replicate.<br>Bacteriophages look like tiny robots.` },
     sv: { question: "Vad är ett virus?", answer: `<strong>Inte en cell.</strong> Har kapsid + DNA/RNA. Behöver värdcell för att föröka sig.<br>Bakteriofager ser ut som små robotar.` },
-    image: "https://kimi-web-img.moonshot.cn/img/www.researchgate.net/66d71381823b8c40713a76d61f4a4bad19159940.png"
+    image: ""
+  },
+  {
+    topic: "cell",
+    en: { question: "What is the cell cycle?", answer: `G1 (growth) → S (DNA copy) → G2 (prep) → M (mitosis).<br>Mitosis: prophase, metaphase, anaphase, telophase.` },
+    sv: { question: "Vad är cellcykeln?", answer: `G1 (tillväxt) → S (DNA-kopia) → G2 (förberedelse) → M (mitos).<br>Mitos: profas, metafas, anafas, telofas.` },
+    image: ""
+  },
+  {
+    topic: "cell",
+    en: { question: "Mitosis vs Meiosis?", answer: `<strong>Mitosis:</strong> 1 division, 2 diploid cells, growth/repair.<br><strong>Meiosis:</strong> 2 divisions, 4 haploid cells, makes gametes.` },
+    sv: { question: "Mitos vs Meios?", answer: `<strong>Mitos:</strong> 1 delning, 2 diploida celler, tillväxt/reparation.<br><strong>Meios:</strong> 2 delningar, 4 haploida celler, bildar könsceller.` },
+    image: ""
+  },
+  {
+    topic: "cell",
+    en: { question: "How do bacteria exchange DNA?", answer: `Transformation (uptake from environment), Conjugation (direct transfer), Transduction (via virus).` },
+    sv: { question: "Hur byter bakterier DNA?", answer: `Transformation (upptag från miljön), Konjugation (direkt överföring), Transduktion (via virus).` },
+    image: ""
+  },
+  {
+    topic: "cell",
+    en: { question: "How is DNA copied?", answer: `Helicase unwinds, polymerase builds new strands (A-T, C-G), ligase glues pieces.<br>Semi-conservative: each new DNA has one old and one new strand.` },
+    sv: { question: "Hur kopieras DNA?", answer: `Helikas öppnar, polymeras bygger nya strängar (A-T, C-G), ligas klistrar ihop.<br>Semikonservativ: varje ny DNA har en gammal och en ny sträng.` },
+    image: ""
   },
   // GENETICS
   {
@@ -366,26 +402,86 @@ const cardData = [
     topic: "genetics",
     en: { question: "How does a Punnett square work?", answer: `Bb × Bb → 25% BB, 50% Bb, 25% bb.<br>Phenotype: 3 brown : 1 blue.` },
     sv: { question: "Hur fungerar ett korsningsschema?", answer: `Bb × Bb → 25% BB, 50% Bb, 25% bb.<br>Fenotyp: 3 bruna : 1 blå.` },
-    image: "https://kimi-web-img.moonshot.cn/img/passel2.unl.edu/2ef336d233219c95fc174d0a5368eacb58fcf43f.php"
+    image: ""
+  },
+  {
+    topic: "genetics",
+    en: { question: "Why don't recessive genes disappear?", answer: `Recessive genes can be hidden in carriers (Bb).<br>Two carriers can have affected children (bb).` },
+    sv: { question: "Varför försvinner inte recessiva gener?", answer: `Recessiva gener kan vara dolda hos bärare (Bb).<br>Två bärare kan få barn med egenskapen (bb).` },
+    image: ""
   },
   {
     topic: "genetics",
     en: { question: "DNA vs RNA?", answer: `<strong>DNA:</strong> double, deoxyribose, T, stores info.<br><strong>RNA:</strong> single, ribose, U, messenger.` },
     sv: { question: "DNA vs RNA?", answer: `<strong>DNA:</strong> dubbel, deoxiribos, T, lagrar info.<br><strong>RNA:</strong> enkel, ribos, U, budbärare.` },
-    image: "https://kimi-web-img.moonshot.cn/img/d20khd7ddkh5ls.cloudfront.net/492ab4cbb184deed79f3255f2a4f9c00f18cf5ca.png"
+    image: ""
+  },
+  {
+    topic: "genetics",
+    en: { question: "How are proteins built?", answer: `<strong>Transcription:</strong> DNA → mRNA.<br><strong>Translation:</strong> mRNA → protein (ribosomes read codons, tRNA brings amino acids).` },
+    sv: { question: "Hur byggs proteiner?", answer: `<strong>Transkription:</strong> DNA → mRNA.<br><strong>Translation:</strong> mRNA → protein (ribosomer läser kodon, tRNA bär aminosyror).` },
+    image: ""
+  },
+  {
+    topic: "genetics",
+    en: { question: "What are mutations?", answer: `Point mutation (substitution), Insertion (adds base), Deletion (removes base).<br>Insertion/Deletion cause frameshift → serious.` },
+    sv: { question: "Vad är mutationer?", answer: `Punktmutation (substitution), Insertion (lägger till), Deletion (tar bort).<br>Insertion/Deletion orsakar läsramsförskjutning → allvarligt.` },
+    image: ""
+  },
+  {
+    topic: "genetics",
+    en: { question: "What is epigenetics?", answer: `Changes in gene expression WITHOUT changing DNA.<br>Affected by stress, diet, environment.<br>Can be inherited.` },
+    sv: { question: "Vad är epigenetik?", answer: `Förändringar i genuttryck UTAN att DNA ändras.<br>Påverkas av stress, kost, miljö.<br>Kan ärvas.` },
+    image: ""
+  },
+  {
+    topic: "genetics",
+    en: { question: "What is Hardy-Weinberg law?", answer: `Allele frequencies stay constant if no evolution.<br>Conditions: large population, random mating, no migration, no mutation, no selection.<br>p² + 2pq + q² = 1` },
+    sv: { question: "Vad är Hardy-Weinbergs lag?", answer: `Allel-frekvenser förblir konstanta om ingen evolution sker.<br>Villkor: stor population, slumpmässig parning, ingen migration, mutation eller selektion.<br>p² + 2pq + q² = 1` },
+    image: ""
   },
   // EVOLUTION
   {
     topic: "evolution",
     en: { question: "What is natural selection?", answer: `"Survival of the fittest."<br>Variation + overproduction + differential survival.<br>Example: Darwin's finches.` },
     sv: { question: "Vad är naturligt urval?", answer: `"De bäst anpassade överlever."<br>Variation + överproduktion + olika överlevnad.<br>Exempel: Darwinfinkar.` },
-    image: "https://kimi-web-img.moonshot.cn/img/cdn-ildfibj.nitrocdn.com/5e21fcbfdcc48c98b650e72ea8d2ba33f82d6077.jpg"
+    image: ""
   },
   {
     topic: "evolution",
     en: { question: "What is convergent evolution?", answer: `Unrelated species develop similar traits due to similar environments.<br>Examples: wings, cactus-like plants, eyes.` },
     sv: { question: "Vad är konvergent evolution?", answer: `Olikartade arter utvecklar liknande egenskaper pga liknande miljöer.<br>Exempel: vingar, kaktusliknande växter, ögon.` },
-    image: "https://kimi-web-img.moonshot.cn/img/cdn-ildfibj.nitrocdn.com/384423677d866ecc199eec4b24e0c783b6bf66b7.jpg"
+    image: ""
+  },
+  {
+    topic: "evolution",
+    en: { question: "What is selection pressure?", answer: `Environmental factor that makes some traits advantageous.<br>Examples: predators, drought, climate change.` },
+    sv: { question: "Vad är selektionstryck?", answer: `Miljöfaktor som gör vissa egenskaper fördelaktiga.<br>Exempel: rovdjur, torka, klimatförändring.` },
+    image: ""
+  },
+  {
+    topic: "evolution",
+    en: { question: "Sexual selection & fitness?", answer: `<strong>Sexual selection:</strong> competition for mates.<br><strong>Fitness:</strong> ability to pass on genes.<br>Peacock tail = sexual selection.` },
+    sv: { question: "Sexuell selektion & fitness?", answer: `<strong>Sexuell selektion:</strong> konkurrens om partner.<br><strong>Fitness:</strong> förmåga att föra gener vidare.<br>Påfågelstjärt = sexuell selektion.` },
+    image: ""
+  },
+  {
+    topic: "evolution",
+    en: { question: "What is speciation?", answer: `<strong>Allopatric:</strong> geographic barrier.<br><strong>Sympatric:</strong> same place, no barrier.<br><strong>Peripatric:</strong> small group moves to new area.` },
+    sv: { question: "Vad är artbildning?", answer: `<strong>Allopatrisk:</strong> geografisk barriär.<br><strong>Sympatrisk:</strong> samma plats, ingen barriär.<br><strong>Peripatrisk:</strong> liten grupp flyttar till nytt område.` },
+    image: ""
+  },
+  {
+    topic: "evolution",
+    en: { question: "What is endosymbiotic theory?", answer: `Mitochondria and chloroplasts were once free-living bacteria that were engulfed by larger cells.<br>Evidence: own DNA, double membranes, divide like bacteria.` },
+    sv: { question: "Vad är endosymbiontteorin?", answer: `Mitokondrier och kloroplaster var en gång frilevande bakterier som slukades av större celler.<br>Bevis: eget DNA, dubbla membran, delar sig som bakterier.` },
+    image: ""
+  },
+  {
+    topic: "evolution",
+    en: { question: "What is LUCA?", answer: `Last Universal Common Ancestor.<br>Bacteria, Archaea, and Eukaryotes all share the same origin.<br>Eukaryotes are within Archaea.` },
+    sv: { question: "Vad är LUCA?", answer: `Last Universal Common Ancestor (sista gemensamma förfader).<br>Bakterier, arkéer och eukaryoter delar samma ursprung.<br>Eukaryoter är inom arkéerna.` },
+    image: ""
   },
   // ECOLOGY
   {
@@ -398,25 +494,73 @@ const cardData = [
     topic: "ecology",
     en: { question: "Food chain and energy pyramid?", answer: `Producer → primary → secondary → tertiary → decomposer.<br>90% energy lost per level → only 10% moves up.` },
     sv: { question: "Näringskedja och energipyramid?", answer: `Producent → primärkonsument → sekundärkonsument → tertiärkonsument → nedbrytare.<br>90% energi förloras per nivå → bara 10% går vidare.` },
-    image: "https://kimi-web-img.moonshot.cn/img/d1yqpar94jqbqm.cloudfront.net/734b32cca14a0008b214c18fb8452ad54749e0c7.jpg"
+    image: ""
+  },
+  {
+    topic: "ecology",
+    en: { question: "Types of symbiosis?", answer: `<strong>Mutualism:</strong> both benefit.<br><strong>Commensalism:</strong> one benefits, other unaffected.<br><strong>Parasitism:</strong> one benefits, one harmed.` },
+    sv: { question: "Typer av samlevnad?", answer: `<strong>Mutualism:</strong> båda gynnas.<br><strong>Kommensalism:</strong> en gynnas, andra opåverkad.<br><strong>Parasitism:</strong> en gynnas, en skadas.` },
+    image: ""
+  },
+  {
+    topic: "ecology",
+    en: { question: "Resilience and threshold values?", answer: `<strong>Resilience:</strong> ability to recover after disturbance.<br><strong>Threshold:</strong> limit where recovery is no longer possible.<br>High biodiversity = higher resilience.` },
+    sv: { question: "Resiliens och tröskelvärden?", answer: `<strong>Resiliens:</strong> förmåga att återhämta sig.<br><strong>Tröskelvärde:</strong> gräns där återhämtning inte är möjlig.<br>Hög biodiversitet = högre resiliens.` },
+    image: ""
+  },
+  {
+    topic: "ecology",
+    en: { question: "What are ecosystem services?", answer: `Benefits humans get from nature: provisioning (food, water), regulating (climate, pollination), cultural (recreation), supporting (nutrient cycles).` },
+    sv: { question: "Vad är ekosystemtjänster?", answer: `Fördelar människan får från naturen: försörjning (mat, vatten), reglering (klimat, pollinering), kulturella (rekreation), stödjande (näringscykler).` },
+    image: ""
+  },
+  {
+    topic: "ecology",
+    en: { question: "Proximate vs Ultimate explanations?", answer: `<strong>Proximate:</strong> HOW does it work? (mechanism)<br><strong>Ultimate:</strong> WHY does it exist? (evolutionary function)` },
+    sv: { question: "Proximal vs Ultimat förklaring?", answer: `<strong>Proximal:</strong> HUR fungerar det? (mekanism)<br><strong>Ultimat:</strong> VARFÖR finns det? (evolutionär funktion)` },
+    image: ""
   },
   // HUMAN
   {
     topic: "human",
     en: { question: "How does digestion work?", answer: `Mouth (amylase) → esophagus → stomach (acid, pepsin) → small intestine (bile, villi) → large intestine (water).` },
     sv: { question: "Hur fungerar matspjälkning?", answer: `Mun (amylas) → matstrupe → magsäck (syra, pepsin) → tunntarm (galla, tarmludd) → tjocktarm (vatten).` },
-    image: "https://kimi-web-img.moonshot.cn/img/geniebook.com/c98b9dc138694b4a6c44b9a6c6704e723096f88a.webp"
+    image: ""
   },
   {
     topic: "human",
     en: { question: "How does breathing work?", answer: `Air → nose/mouth → trachea → bronchi → alveoli.<br>O2 diffuses into blood, CO2 out.<br>Diaphragm contracts → inhale.` },
     sv: { question: "Hur fungerar andning?", answer: `Luft → näsa/mun → luftstrupe → bronker → alveoler.<br>O2 diffunderar in i blodet, CO2 ut.<br>Diafragman drar ihop sig → inandning.` },
-    image: "https://kimi-web-img.moonshot.cn/img/cdn1.byjus.com/b30829860455cfe58cbde093df79a10c007cc96b.png"
+    image: ""
   },
   {
     topic: "human",
     en: { question: "How is the heart built?", answer: `4 chambers: right atrium, right ventricle, left atrium, left ventricle.<br>Pulmonary circuit (lungs) + systemic circuit (body).` },
     sv: { question: "Hur är hjärtat uppbyggt?", answer: `4 rum: höger förmak, höger kammare, vänster förmak, vänster kammare.<br>Lilla kretsloppet (lungor) + stora kretsloppet (kroppen).` },
+    image: ""
+  },
+  {
+    topic: "human",
+    en: { question: "How do the kidneys work?", answer: `Nephrons filter blood: Bowman's capsule → tubule (reabsorption) → excretion.<br>180L primary urine → 0.5-2L secondary urine.` },
+    sv: { question: "Hur fungerar njurarna?", answer: `Nefron filtrerar blod: Bowmans kapsel → tubulus (återupptagning) → utsöndring.<br>180L primärurin → 0,5-2L sekundärurin.` },
+    image: ""
+  },
+  {
+    topic: "human",
+    en: { question: "How does the menstrual cycle work?", answer: `~28 days: FSH → follicle matures, estrogen builds lining.<br>Ovulation (LH spike) → corpus luteum produces progesterone.<br>If no fertilization → menstruation.` },
+    sv: { question: "Hur fungerar menstruationscykeln?", answer: `~28 dagar: FSH → follikel mognar, östrogen bygger slemhinna.<br>Ägglossning (LH-topp) → gulkropp producerar progesteron.<br>Om ingen befruktning → mens.` },
+    image: ""
+  },
+  {
+    topic: "human",
+    en: { question: "Reproductive organs & sperm production?", answer: `Female: ovaries, fallopian tubes, uterus, vagina.<br>Male: testes (sperm + testosterone), epididymis, vas deferens, prostate.<br>Spermatogenesis: stem cell → mitosis → meiosis → 4 sperm.` },
+    sv: { question: "Könsorgan & spermiebildning?", answer: `Hona: äggstockar, äggledare, livmoder, slida.<br>Hane: testiklar (spermier + testosteron), bitestiklar, sädesledare, prostata.<br>Spermatogenes: stamcell → mitos → meios → 4 spermier.` },
+    image: ""
+  },
+  {
+    topic: "human",
+    en: { question: "What happens after fertilization?", answer: `Zygote → morula → blastocyst (day 5-6) → implantation (day 6-7).<br>Gastrulation → 3 germ layers: ectoderm, mesoderm, endoderm.<br>Week 3-8: embryo.` },
+    sv: { question: "Vad händer efter befruktning?", answer: `Zygot → morula → blastocyst (dag 5-6) → implantation (dag 6-7).<br>Gastrulation → 3 groddlager: ektoderm, mesoderm, endoderm.<br>Vecka 3-8: embryo.` },
     image: ""
   }
 ];
@@ -590,16 +734,9 @@ function updateCard() {
   frontQuestion.textContent = text.question;
   backAnswer.innerHTML = text.answer;
   
-  // Images
-  if (card.image) {
-    frontImage.src = card.image;
-    frontImage.style.display = 'block';
-    backImage.src = card.image;
-    backImage.style.display = 'block';
-  } else {
-    frontImage.style.display = 'none';
-    backImage.style.display = 'none';
-  }
+  // Images - all removed, hide them
+  frontImage.style.display = 'none';
+  backImage.style.display = 'none';
   
   // Topic class for border
   flashcard.className = 'flashcard topic-' + card.topic;
@@ -643,10 +780,10 @@ function shuffleCards() {
   updateCard();
 }
 
-function filterCards(topic) {
+function filterCards(topic, btn) {
   currentFilter = topic;
-  document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('filter-active'));
-  event.target.classList.add('filter-active');
+  document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('filter-active'));
+  if (btn) btn.classList.add('filter-active');
   
   if (topic === 'all') {
     filteredCards = [...cardData];
